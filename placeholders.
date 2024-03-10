@@ -1,0 +1,105 @@
+import React, { useState } from "react";
+import { Box, Button, VStack, Heading, Input, FormControl, FormLabel, InputGroup, InputRightElement, Textarea, Image, SimpleGrid, GridItem, useToast } from "@chakra-ui/react";
+import { FaPlus, FaUpload, FaQrcode } from "react-icons/fa";
+
+const Index = () => {
+  const [images, setImages] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [newMenuItem, setNewMenuItem] = useState({ name: "", price: "" });
+  const toast = useToast();
+
+  const handleImageUpload = (event) => {
+    // Mock image upload handler
+    const uploadedImages = Array.from(event.target.files).map((file) => URL.createObjectURL(file));
+    setImages(uploadedImages);
+  };
+
+  const generateQRCode = () => {
+    // Mock QR code generation
+    toast({
+      title: "QR Code Generated!",
+      description: "We've created a QR code for your menu.",
+      status: "success",
+      duration: 5000,
+      isClosable: true,
+    });
+  };
+
+  const addMenuItem = () => {
+    if (newMenuItem.name && newMenuItem.price) {
+      setMenuItems([...menuItems, newMenuItem]);
+      setNewMenuItem({ name: "", price: "" });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please fill in both name and price for the menu item.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return (
+    <Box p={8}>
+      <VStack spacing={8}>
+        <Heading>Create or Upload Your Menu</Heading>
+
+        <VStack spacing={6}>
+          <Heading size="md">Create QR Code with Existing Menu Images</Heading>
+          <FormControl>
+            <FormLabel>Upload Menu Images</FormLabel>
+            <InputGroup>
+              <input type="file" multiple onChange={handleImageUpload} style={{ display: "none" }} id="file-upload" />
+              <Button leftIcon={<FaUpload />} as="label" htmlFor="file-upload">
+                Upload Images
+              </Button>
+            </InputGroup>
+          </FormControl>
+          <SimpleGrid columns={3} spacing={4}>
+            {images.map((src, index) => (
+              <GridItem key={index}>
+                <Image src={src} alt={`Menu ${index + 1}`} />
+              </GridItem>
+            ))}
+          </SimpleGrid>
+          {images.length > 0 && (
+            <Button leftIcon={<FaQrcode />} onClick={generateQRCode}>
+              Generate QR Code
+            </Button>
+          )}
+        </VStack>
+
+        <VStack spacing={6}>
+          <Heading size="md">Create a New Menu</Heading>
+          <FormControl id="menu-item-name">
+            <FormLabel>Name</FormLabel>
+            <Input placeholder="Item Name" value={newMenuItem.name} onChange={(e) => setNewMenuItem({ ...newMenuItem, name: e.target.value })} />
+          </FormControl>
+          <FormControl id="menu-item-price">
+            <FormLabel>Price</FormLabel>
+            <Input placeholder="Item Price" type="number" value={newMenuItem.price} onChange={(e) => setNewMenuItem({ ...newMenuItem, price: e.target.value })} />
+          </FormControl>
+          <Button leftIcon={<FaPlus />} onClick={addMenuItem}>
+            Add Menu Item
+          </Button>
+          <VStack align="stretch">
+            {menuItems.map((item, index) => (
+              <Box key={index} p={4} shadow="md" borderWidth="1px">
+                <Heading size="sm">{item.name}</Heading>
+                <Text>{`Price: $${item.price}`}</Text>
+              </Box>
+            ))}
+          </VStack>
+          {menuItems.length > 0 && (
+            <Button leftIcon={<FaQrcode />} onClick={generateQRCode}>
+              Publish & Generate QR Code
+            </Button>
+          )}
+        </VStack>
+      </VStack>
+    </Box>
+  );
+};
+
+export default Index;
